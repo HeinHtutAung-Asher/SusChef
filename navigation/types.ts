@@ -1,12 +1,14 @@
-// Navigation type definitions for React Navigation
 import { RouteNames } from './routeNames';
 
+// 1. Types for the outer Stack (Login vs App)
 export type RootStackParamList = {
   [RouteNames.Login]: undefined;
-  [RouteNames.Home]: undefined;
+  [RouteNames.MainApp]: undefined; 
+};
+
+// 2. Types for the inner Tabs
+export type TabParamList = {
   [RouteNames.Pantry]: undefined;
-  [RouteNames.Tools]: undefined;
-  [RouteNames.Recommendations]: undefined;
-  [RouteNames.RecipeDetail]: { recipeId: string };
-  [RouteNames.Rating]: { recipeId: string };
+  [RouteNames.Saved]: undefined;
+  [RouteNames.Profile]: undefined;
 };

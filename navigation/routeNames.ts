@@ -1,10 +1,8 @@
 // Route names enum for type-safe navigation
 export enum RouteNames {
   Login = 'Login',
-  Home = 'Home',
+  MainApp = 'MainApp',
   Pantry = 'Pantry',
-  Tools = 'Tools',
-  Recommendations = 'Recommendations',
-  RecipeDetail = 'RecipeDetail',
-  Rating = 'Rating',
+  Saved = 'Saved',
+  Profile = 'Profile',
 }
