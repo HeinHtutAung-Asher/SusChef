@@ -1,18 +1,22 @@
 import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   Refrigerator,
   Heart,
   User,
 } from 'lucide-react-native';
 import PantryScreen from '../features/pantry/PantryScreen';
+import { RecipeResultsScreen } from '../features/recommendations/RecipeResultsScreen';
+import { RecipeDetailScreen } from '../features/recommendations/RecipeDetailScreen';
 import { RouteNames } from './routeNames';
 import { TabParamList } from './types';
 import { colors } from '../core/theme/colors';
 import { typography } from '../core/theme/typography';
 
 const Tab = createBottomTabNavigator<TabParamList>();
+const PantryStack = createNativeStackNavigator();
 
 const styles = StyleSheet.create({
   placeholder: {
@@ -35,6 +39,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderTopColor: colors.border,
     borderTopWidth: 1,
+    height: 70,
+    paddingBottom: 4,
+    paddingTop: 4,
     ...(Platform.OS === 'ios'
       ? {
           shadowColor: '#000',
@@ -47,6 +54,26 @@ const styles = StyleSheet.create({
         }),
   },
 });
+
+// Nested Stack for Pantry
+function PantryStackNavigator() {
+  return (
+    <PantryStack.Navigator screenOptions={{ headerShown: false }}>
+      <PantryStack.Screen
+        name={RouteNames.Pantry}
+        component={PantryScreen}
+      />
+      <PantryStack.Screen
+        name={RouteNames.RecipeResults}
+        component={RecipeResultsScreen}
+      />
+      <PantryStack.Screen
+        name={RouteNames.RecipeDetail}
+        component={RecipeDetailScreen}
+      />
+    </PantryStack.Navigator>
+  );
+}
 
 // Placeholder Screens
 const SavedScreen = () => (
@@ -75,15 +102,20 @@ export default function TabNavigator() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.text.secondary,
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '500' as const,
+          fontSize: 11,
+          fontWeight: '600',
           marginBottom: 4,
+          marginTop: 0,
+        },
+        tabBarIconStyle: {
+          marginBottom: 2,
+          marginTop: 2,
         },
       }}
     >
       <Tab.Screen
         name={RouteNames.Pantry}
-        component={PantryScreen}
+        component={PantryStackNavigator}
         options={{
           tabBarLabel: 'Pantry',
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (

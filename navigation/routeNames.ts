@@ -5,4 +5,6 @@ export enum RouteNames {
   Pantry = 'Pantry',
   Saved = 'Saved',
   Profile = 'Profile',
+  RecipeResults = 'RecipeResults',
+  RecipeDetail = 'RecipeDetail',
 }

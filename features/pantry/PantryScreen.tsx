@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,13 +14,16 @@ import { PantrySection } from '../../components/PantrySection';
 import { IngredientRow } from '../../components/IngredientRow';
 import { ToolRow } from '../../components/ToolRow';
 import { Button } from '../../components/Button';
+import { LoadingScreen } from '../recommendations/LoadingScreen';
 import { colors } from '../../core/theme/colors';
 import { layout, typography } from '../../core/theme/typography';
+import { RouteNames } from '../../navigation/routeNames';
 
 interface Ingredient {
   id: string;
   name: string;
-  quantity: string;
+  amount: number;
+  unit: string;
 }
 
 interface Tool {
@@ -35,9 +38,10 @@ interface PantryScreenProps {
 
 export const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
   const { height } = useWindowDimensions();
+  const [isLoading, setIsLoading] = useState(false);
   const [ingredients, setIngredients] = useState<Ingredient[]>([
-    { id: '1', name: 'Rice', quantity: '2 cups' },
-    { id: '2', name: 'Eggs', quantity: '6 pcs' },
+    { id: '1', name: 'Rice', amount: 2, unit: 'cups' },
+    { id: '2', name: 'Eggs', amount: 6, unit: 'pcs' },
   ]);
 
   const [tools, setTools] = useState<Tool[]>([
@@ -58,7 +62,8 @@ export const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
     const newIngredient: Ingredient = {
       id: Date.now().toString(),
       name: name.trim(),
-      quantity: '1 unit',
+      amount: 1,
+      unit: 'pcs',
     };
     setIngredients((prev) => [...prev, newIngredient]);
   }, []);
@@ -82,15 +87,12 @@ export const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
     const ingredient = ingredients.find((ing) => ing.id === id);
     if (!ingredient) return;
 
-    // Explicit check for quantity value
-    if (
-      ingredient.quantity !== '0' &&
-      ingredient.quantity !== ''
-    ) {
+    // Explicit check for amount value
+    if (ingredient.amount > 0) {
       // Just set to 0
       setIngredients((prev) =>
         prev.map((ing) =>
-          ing.id === id ? { ...ing, quantity: '0' } : ing
+          ing.id === id ? { ...ing, amount: 0 } : ing
         )
       );
     } else {
@@ -130,12 +132,14 @@ export const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
   }, []);
 
   const handleGenerateRecipe = useCallback(() => {
-    console.log('Generate recipe with:', {
-      ingredients: ingredients.filter((ing) => ing.quantity !== '0'),
-      tools: tools.filter((tool) => tool.isChecked),
-    });
-    Alert.alert('Coming Soon', 'Recipe generation feature coming soon!');
-  }, [ingredients, tools]);
+    setIsLoading(true);
+    // Simulate AI processing for 1.5 seconds
+    setTimeout(() => {
+      setIsLoading(false);
+      // Navigate to recipes results
+      navigation?.navigate(RouteNames.RecipeResults);
+    }, 1500);
+  }, [navigation]);
 
   const styles = StyleSheet.create({
     safeArea: {
@@ -192,7 +196,10 @@ export const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <>
+      {isLoading && <LoadingScreen />}
+      {!isLoading && (
+        <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -218,8 +225,23 @@ export const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
                   renderItem={(item: Ingredient) => (
                     <IngredientRow
                       label={item.name}
-                      quantity={item.quantity}
+                      amount={item.amount}
+                      unit={item.unit}
                       onDelete={() => handleDeleteIngredient(item.id)}
+                      onAmountChange={(newAmount) => {
+                        setIngredients((prev) =>
+                          prev.map((ing) =>
+                            ing.id === item.id ? { ...ing, amount: newAmount } : ing
+                          )
+                        );
+                      }}
+                      onUnitChange={(newUnit) => {
+                        setIngredients((prev) =>
+                          prev.map((ing) =>
+                            ing.id === item.id ? { ...ing, unit: newUnit } : ing
+                          )
+                        );
+                      }}
                     />
                   )}
                 />
@@ -267,6 +289,8 @@ export const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
+      )}
+    </>
   );
 };
 

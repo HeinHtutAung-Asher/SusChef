@@ -11,4 +11,6 @@ export type TabParamList = {
   [RouteNames.Pantry]: undefined;
   [RouteNames.Saved]: undefined;
   [RouteNames.Profile]: undefined;
+  [RouteNames.RecipeResults]: undefined;
+  [RouteNames.RecipeDetail]: { recipeId: string };
 };
