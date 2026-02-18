@@ -1,41 +1,36 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { RootStackParamList } from './types';
 import { RouteNames } from './routeNames';
-
-// Import screens
+import { RootStackParamList } from './types'; 
 import LoginScreen from '../features/auth/LoginScreen';
-import HomeScreen from '../features/home/HomeScreen';
+import TabNavigator from './TabNavigator';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName={RouteNames.Login}
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: '#4CAF50',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
-      >
-        <Stack.Screen
-          name={RouteNames.Login}
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name={RouteNames.Home}
-          component={HomeScreen}
-          options={{ title: 'SusChef' }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    // Note: No <NavigationContainer> here! It's already in App.tsx.
+    <Stack.Navigator
+      initialRouteName={RouteNames.Login}
+      screenOptions={{
+        headerStyle: { backgroundColor: '#4CAF50' },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontWeight: 'bold' },
+      }}
+    >
+      {/* 1. Login Screen (Stack Level) */}
+      <Stack.Screen
+        name={RouteNames.Login}
+        component={LoginScreen}
+        options={{ headerShown: false }}
+      />
+
+      {/* 2. The Main App (Tab Level) */}
+      <Stack.Screen
+        name={RouteNames.MainApp} 
+        component={TabNavigator}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
   );
 }

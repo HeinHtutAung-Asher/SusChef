@@ -1,55 +1,238 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../navigation/types';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Leaf } from 'lucide-react-native';
+import { InputField } from '../../components/InputField';
+import { SocialButton } from '../../components/SocialButton';
+import { colors } from '../../core/theme/colors';
+import { layout, typography } from '../../core/theme/typography';
 import { RouteNames } from '../../navigation/routeNames';
 
-type LoginScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, RouteNames.Login>;
-};
-
-export default function LoginScreen({ navigation }: LoginScreenProps) {
-  const handleLogin = () => {
-    navigation.navigate(RouteNames.Home);
-  };
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>SusChef</Text>
-      <Text style={styles.subtitle}>Turn Leftovers into Meals</Text>
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Sign In</Text>
-      </TouchableOpacity>
-    </View>
-  );
+interface LoginScreenProps {
+  navigation: any;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 40,
-  },
-  button: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
+export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleLogin = () => {
+    // TODO: Implement login logic with email/password
+    console.log('Login with:', { email, password });
+    navigation.navigate(RouteNames.MainApp);
+  };
+
+  const handleGoogleLogin = () => {
+    // TODO: Implement Google login via OAuth
+    console.log('Google login');
+    navigation.navigate(RouteNames.MainApp);
+  };
+
+  const handleFacebookLogin = () => {
+    // TODO: Implement Facebook login via OAuth
+    console.log('Facebook login');
+    navigation.navigate(RouteNames.MainApp);
+  };
+
+  const handleSignUp = () => {
+    navigation.navigate('SignUp');
+  };
+
+  const styles = StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    container: {
+      flexGrow: 1,
+      paddingHorizontal: layout.spacing.lg,
+      paddingTop: layout.spacing.xl,
+      paddingBottom: layout.spacing.lg,
+    },
+    headerSection: {
+      alignItems: 'center',
+      marginBottom: layout.spacing.xl,
+    },
+    leafIcon: {
+      marginBottom: layout.spacing.md,
+    },
+    title: {
+      fontSize: typography.size.h1,
+      fontWeight: '700' as const,
+      color: colors.text.primary,
+      marginBottom: layout.spacing.sm,
+    },
+    subtitle: {
+      fontSize: typography.size.body,
+      color: colors.text.secondary,
+    },
+    formSection: {
+      marginBottom: layout.spacing.xl,
+    },
+    forgotPasswordContainer: {
+      alignItems: 'flex-end',
+      marginTop: layout.spacing.sm,
+    },
+    forgotPasswordText: {
+      fontSize: typography.size.caption,
+      color: colors.primary,
+      fontWeight: '600' as const,
+    },
+    loginButton: {
+      backgroundColor: colors.primary,
+      borderRadius: layout.radius.full,
+      paddingVertical: layout.spacing.md,
+      paddingHorizontal: layout.spacing.lg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: layout.spacing.lg,
+    },
+    loginButtonText: {
+      color: colors.surface,
+      fontSize: typography.size.body,
+      fontWeight: '700' as const,
+    },
+    dividerContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: layout.spacing.lg,
+      gap: layout.spacing.md,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border,
+    },
+    dividerText: {
+      fontSize: typography.size.caption,
+      color: colors.text.secondary,
+    },
+    socialSection: {
+      flexDirection: 'row',
+      gap: layout.spacing.md,
+      marginBottom: layout.spacing.xl,
+    },
+    socialButton: {
+      flex: 1,
+    },
+    signUpContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: layout.spacing.sm,
+      marginTop: layout.spacing.lg,
+    },
+    signUpText: {
+      fontSize: typography.size.body,
+      color: colors.text.secondary,
+    },
+    signUpLink: {
+      fontSize: typography.size.body,
+      color: colors.primary,
+      fontWeight: '600' as const,
+    },
+  });
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header Section */}
+          <View style={styles.headerSection}>
+            <View style={styles.leafIcon}>
+              <Leaf size={64} />
+            </View>
+            <Text style={styles.title}>SusChef</Text>
+            <Text style={styles.subtitle}>Turn leftovers into meals</Text>
+          </View>
+
+          {/* Form Section */}
+          <View style={styles.formSection}>
+            <InputField
+              label="Email"
+              placeholder="Enter your email"
+              value={email}
+              onChangeText={setEmail}
+              iconName="mail"
+            />
+
+            <InputField
+              label="Password"
+              placeholder="Enter your password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              iconName={showPassword ? 'eye' : 'eyeOff'}
+              onIconPress={() => setShowPassword(!showPassword)}
+            />
+
+            <Pressable
+              style={styles.forgotPasswordContainer}
+              onPress={() => navigation.navigate('ForgotPassword')}
+            >
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </Pressable>
+          </View>
+
+          {/* Action Section */}
+          <Pressable
+            style={styles.loginButton}
+            onPress={handleLogin}
+          >
+            <Text style={styles.loginButtonText}>Log In</Text>
+          </Pressable>
+
+          {/* Divider */}
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>Or continue with</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* Social Section */}
+          <View style={styles.socialSection}>
+            <View style={styles.socialButton}>
+              <SocialButton
+                title="Google"
+                iconName="google"
+                onPress={handleGoogleLogin}
+              />
+            </View>
+            <View style={styles.socialButton}>
+              <SocialButton
+                title="Facebook"
+                iconName="facebook"
+                onPress={handleFacebookLogin}
+              />
+            </View>
+          </View>
+
+          {/* Sign Up Link */}
+          <View style={styles.signUpContainer}>
+            <Text style={styles.signUpText}>Don't have an account?</Text>
+            <Pressable onPress={handleSignUp}>
+              <Text style={styles.signUpLink}>Sign Up</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
+export default LoginScreen;
