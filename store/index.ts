@@ -1,2 +1,2 @@
-export { usePantryStore, PantryProvider } from './usePantryStore.tsx';
-export type { Ingredient } from './usePantryStore.tsx';
+export { usePantryStore, PantryProvider } from './usePantryStore';
+export type { Ingredient } from './usePantryStore';

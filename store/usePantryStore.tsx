@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
+import { generateId } from '../core/utils/helpers';
 
 export interface Ingredient {
   id: string;
@@ -31,7 +32,7 @@ function pantryReducer(state: PantryState, action: PantryAction): PantryState {
         ingredients: [
           ...state.ingredients,
           {
-            id: Date.now().toString(),
+            id: generateId(),
             name: action.payload.name.trim(),
             amount: action.payload.amount,
             unit: action.payload.unit,
@@ -80,21 +81,21 @@ interface PantryProviderProps {
 export function PantryProvider({ children }: PantryProviderProps) {
   const [state, dispatch] = useReducer(pantryReducer, initialState);
 
-  const addIngredient = (name: string, amount = 1, unit = 'pcs') => {
+  const addIngredient = useCallback((name: string, amount = 1, unit = 'pcs') => {
     dispatch({ type: 'ADD_INGREDIENT', payload: { name, amount, unit } });
-  };
+  }, []);
 
-  const removeIngredient = (id: string) => {
+  const removeIngredient = useCallback((id: string) => {
     dispatch({ type: 'REMOVE_INGREDIENT', payload: id });
-  };
+  }, []);
 
-  const updateIngredient = (id: string, updates: Partial<Ingredient>) => {
+  const updateIngredient = useCallback((id: string, updates: Partial<Ingredient>) => {
     dispatch({ type: 'UPDATE_INGREDIENT', payload: { id, updates } });
-  };
+  }, []);
 
-  const clearPantry = () => {
+  const clearPantry = useCallback(() => {
     dispatch({ type: 'CLEAR_PANTRY' });
-  };
+  }, []);
 
   const value: PantryContextType = {
     state,

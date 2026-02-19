@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, StorageValue } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Recipe } from '../models/Recipe';
 
@@ -8,6 +8,12 @@ interface RecipeStore {
   toggleSave: (recipe: Recipe) => void;
   isRecipeSaved: (recipeId: string) => boolean;
   getSavedRecipes: () => Recipe[];
+  setSavedRecipes: (recipes: Recipe[]) => void;
+  removeRecipe: (recipeId: string) => void;
+}
+
+interface StorageState {
+  state: RecipeStore;
 }
 
 export const useRecipeStore = create<RecipeStore>()(
@@ -32,6 +38,16 @@ export const useRecipeStore = create<RecipeStore>()(
         });
       },
 
+      removeRecipe: (recipeId: string) => {
+        set((state) => ({
+          savedRecipes: state.savedRecipes.filter((r) => r.id !== recipeId),
+        }));
+      },
+
+      setSavedRecipes: (recipes: Recipe[]) => {
+        set({ savedRecipes: recipes });
+      },
+
       isRecipeSaved: (recipeId: string) => {
         const { savedRecipes } = get();
         return savedRecipes.some((r) => r.id === recipeId);
@@ -53,7 +69,7 @@ export const useRecipeStore = create<RecipeStore>()(
             return null;
           }
         },
-        setItem: async (key: string, value: RecipeStore) => {
+        setItem: async (key: string, value: StorageValue<RecipeStore>) => {
           try {
             await AsyncStorage.setItem(key, JSON.stringify(value));
           } catch (error) {
@@ -67,7 +83,7 @@ export const useRecipeStore = create<RecipeStore>()(
             console.error('Failed to remove from AsyncStorage:', error);
           }
         },
-      } as any,
+      },
     }
   )
 );

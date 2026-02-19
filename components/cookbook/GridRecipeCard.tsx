@@ -1,15 +1,16 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
-  Image,
   Pressable,
   StyleSheet,
   Animated,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Heart, Clock } from 'lucide-react-native';
 import { colors } from '../../core/theme/colors';
 import { layout, typography } from '../../core/theme/typography';
+import { getRecipeImageWithFallback } from '../../core/utils/imageHelper';
 
 interface GridRecipeCardProps {
   title: string;
@@ -29,6 +30,7 @@ export const GridRecipeCard: React.FC<GridRecipeCardProps> = ({
   onToggleSave,
 }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const [isImageLoading, setIsImageLoading] = useState(true);
 
   useEffect((): void => {
     Animated.sequence([
@@ -64,11 +66,23 @@ export const GridRecipeCard: React.FC<GridRecipeCardProps> = ({
       position: 'relative',
       width: '100%',
       height: 140,
+      backgroundColor: '#E0E0E0',
+      justifyContent: 'center' as const,
+      alignItems: 'center' as const,
     },
     image: {
       width: '100%',
       height: '100%',
       borderRadius: layout.radius.md,
+    },
+    loadingSpinner: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      borderWidth: 2,
+      borderColor: 'transparent',
+      borderTopColor: colors.primary,
+      borderRightColor: colors.primary,
     },
     heartButton: {
       position: 'absolute',
@@ -109,7 +123,14 @@ export const GridRecipeCard: React.FC<GridRecipeCardProps> = ({
   return (
     <Pressable style={styles.card} onPress={onPress}>
       <View style={styles.imageContainer}>
-        <Image source={{ uri: image }} style={styles.image} />
+        <Image
+          source={{ uri: getRecipeImageWithFallback(image, title) }}
+          style={styles.image}
+          contentFit="cover"
+          transition={1000}
+          onLoad={() => setIsImageLoading(false)}
+        />
+        {isImageLoading && <View style={styles.loadingSpinner} />}
         <Pressable
           style={styles.heartButton}
           onPress={handleToggleSave}

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { layout, typography } from '../../core/theme/typography';
 import { RouteNames } from '../../navigation/routeNames';
 import { useRecipeStore } from '../../store/useRecipeStore';
 import { Recipe } from '../../models/Recipe';
+import { APP_CONSTANTS } from '../../core/constants/appConstants';
 
 interface SavedRecipesScreenProps {
   navigation?: any;
@@ -21,11 +22,66 @@ interface SavedRecipesScreenProps {
 
 const CATEGORIES = ['All', 'Breakfast', 'Lunch', 'Dinner'];
 
-// Helper to categorize recipes - can be extended with actual category data
+// Move styles outside component
+const createStyles = () => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  headerSection: {
+    paddingHorizontal: layout.spacing.lg,
+    paddingVertical: layout.spacing.md,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    alignItems: 'center',
+  },
+  header: {
+    fontSize: typography.size.h2,
+    fontWeight: '700' as const,
+    color: colors.text.primary,
+  },
+  flatList: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingHorizontal: layout.spacing.lg,
+    paddingTop: layout.spacing.lg,
+    paddingBottom: layout.spacing.xl,
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
+    marginBottom: layout.spacing.lg,
+    gap: layout.spacing.sm,
+  },
+  cardWrapper: {
+    width: '48%',
+  },
+});
+
+const styles = createStyles();
+
+// Helper to categorize recipes based on recipe IDs
 const RECIPE_CATEGORIES: { [key: string]: string[] } = {
-  'Breakfast': ['1'], // Fried Rice
-  'Lunch': ['2', '3'], // Tomato Soup, Green Goddess Salad
-  'Dinner': ['1', '2'], // Fried Rice, Tomato Soup
+  'Breakfast': ['1'],
+  'Lunch': ['2', '3'],
+  'Dinner': ['1', '2'],
+};
+
+/**
+ * Filter recipes by category
+ */
+const filterRecipesByCategory = (recipes: Recipe[], category: string | null): Recipe[] => {
+  if (!category || category === 'All') {
+    return recipes;
+  }
+  return recipes.filter((recipe: Recipe) =>
+    RECIPE_CATEGORIES[category]?.includes(recipe.id)
+  );
 };
 
 export const SavedRecipesScreen: React.FC<SavedRecipesScreenProps> = ({
@@ -34,12 +90,11 @@ export const SavedRecipesScreen: React.FC<SavedRecipesScreenProps> = ({
   const { savedRecipes, toggleSave, isRecipeSaved } = useRecipeStore();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Filter recipes by category
-  const filteredRecipes = selectedCategory && selectedCategory !== 'All'
-    ? savedRecipes.filter((recipe: Recipe) =>
-        RECIPE_CATEGORIES[selectedCategory]?.includes(recipe.id)
-      )
-    : savedRecipes;
+  // Memoize filtered recipes to prevent unnecessary recalculations
+  const filteredRecipes = useMemo(
+    () => filterRecipesByCategory(savedRecipes, selectedCategory),
+    [savedRecipes, selectedCategory]
+  );
 
   const handleRemoveRecipe = useCallback((recipe: Recipe) => {
     toggleSave(recipe);
@@ -55,46 +110,6 @@ export const SavedRecipesScreen: React.FC<SavedRecipesScreenProps> = ({
   const handleNavigateToPantry = useCallback(() => {
     navigation?.navigate(RouteNames.Pantry);
   }, [navigation]);
-
-  const styles = StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    headerSection: {
-      paddingHorizontal: layout.spacing.lg,
-      paddingVertical: layout.spacing.md,
-      backgroundColor: colors.surface,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-      alignItems: 'center',
-    },
-    header: {
-      fontSize: typography.size.h2,
-      fontWeight: '700' as const,
-      color: colors.text.primary,
-    },
-    flatList: {
-      flex: 1,
-    },
-    contentContainer: {
-      paddingHorizontal: layout.spacing.lg,
-      paddingTop: layout.spacing.lg,
-      paddingBottom: layout.spacing.xl,
-    },
-    columnWrapper: {
-      justifyContent: 'space-between',
-      marginBottom: layout.spacing.lg,
-      gap: layout.spacing.sm,
-    },
-    cardWrapper: {
-      width: '48%',
-    },
-  });
 
   const renderRecipeCard = ({ item }: { item: Recipe }) => (
     <View style={styles.cardWrapper}>
@@ -126,7 +141,7 @@ export const SavedRecipesScreen: React.FC<SavedRecipesScreenProps> = ({
         {/* Filter Bar */}
         {savedRecipes.length > 0 && (
           <CookbookFilter
-            categories={CATEGORIES.filter((cat) => cat !== 'All')}
+            categories={CATEGORIES}
             selectedCategory={selectedCategory}
             onSelect={setSelectedCategory}
           />

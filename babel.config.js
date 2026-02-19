@@ -3,12 +3,7 @@ module.exports = function(api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
-      ['@babel/plugin-proposal-logical-assignment-operators'],
+      '@babel/plugin-syntax-import-meta',
     ],
-    env: {
-      production: {
-        plugins: ['react-native-paper/babel'],
-      },
-    },
   };
 };
