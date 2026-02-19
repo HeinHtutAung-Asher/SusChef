@@ -90,7 +90,7 @@ export const UnitSelectorModal: React.FC<UnitSelectorModalProps> = ({
       <Pressable style={styles.overlay} onPress={onClose}>
         <Pressable
           style={[styles.sheet, { maxHeight }]}
-          onPress={(e) => e.stopPropagation()}
+          onPress={(e: any) => e.stopPropagation()}
         >
           {/* Sticky Header */}
           <View style={styles.header}>

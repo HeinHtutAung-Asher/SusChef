@@ -7,6 +7,7 @@ import {
   Heart,
   Utensils,
   Search,
+  BookOpen,
 } from 'lucide-react-native';
 import { colors } from '../core/theme/colors';
 import { layout, typography } from '../core/theme/typography';
@@ -30,6 +31,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       heart: Heart,
       utensils: Utensils,
       search: Search,
+      book: BookOpen,
     };
     return iconMap[iconName.toLowerCase()] || ShoppingBasket;
   };

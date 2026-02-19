@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   Pressable,
-  Animated,
+  StyleSheet,
 } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,55 +17,61 @@ interface RecipeResultsScreenProps {
   navigation: any;
 }
 
+// Move styles outside component
+const createStyles = () => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: layout.spacing.lg,
+    paddingVertical: layout.spacing.md,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  backButton: {
+    marginRight: layout.spacing.md,
+  },
+  title: {
+    fontSize: typography.size.h2,
+    fontWeight: '700' as const,
+    color: colors.text.primary,
+    flex: 1,
+  },
+  content: {
+    paddingHorizontal: layout.spacing.lg,
+    paddingTop: layout.spacing.lg,
+    paddingBottom: layout.spacing.xl,
+  },
+  emptyText: {
+    fontSize: typography.size.body,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    marginTop: layout.spacing.xl,
+  },
+});
+
+const styles = createStyles();
+
 export const RecipeResultsScreen: React.FC<RecipeResultsScreenProps> = ({
   navigation,
 }) => {
-  const styles = StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: colors.background,
+  const handleRecipePress = useCallback(
+    (recipeId: string) => {
+      navigation.navigate('RecipeDetail', { recipeId });
     },
-    container: {
-      flex: 1,
-    },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: layout.spacing.lg,
-      paddingVertical: layout.spacing.md,
-      backgroundColor: colors.surface,
-      borderBottomWidth: 1,
-      borderBottomColor: '#F0F0F0',
-    },
-    backButton: {
-      marginRight: layout.spacing.md,
-    },
-    title: {
-      fontSize: typography.size.h2,
-      fontWeight: '700' as const,
-      color: colors.text.primary,
-      flex: 1,
-    },
-    content: {
-      paddingHorizontal: layout.spacing.lg,
-      paddingTop: layout.spacing.lg,
-      paddingBottom: layout.spacing.xl,
-    },
-    emptyText: {
-      fontSize: typography.size.body,
-      color: colors.text.secondary,
-      textAlign: 'center',
-      marginTop: layout.spacing.xl,
-    },
-  });
+    [navigation]
+  );
 
-  const handleRecipePress = (recipeId: string) => {
-    navigation.navigate('RecipeDetail', { recipeId });
-  };
-
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     navigation.goBack();
-  };
+  }, [navigation]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -87,7 +92,7 @@ export const RecipeResultsScreen: React.FC<RecipeResultsScreenProps> = ({
         showsVerticalScrollIndicator={false}
       >
         {MOCK_RECIPES.length > 0 ? (
-          MOCK_RECIPES.map((recipe, index) => (
+          MOCK_RECIPES.map((recipe) => (
             <RecipeCard
               key={recipe.id}
               recipe={recipe}

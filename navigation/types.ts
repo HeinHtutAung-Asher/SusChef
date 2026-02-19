@@ -14,3 +14,8 @@ export type TabParamList = {
   [RouteNames.RecipeResults]: undefined;
   [RouteNames.RecipeDetail]: { recipeId: string };
 };
+
+export type ProfileStackParamList = {
+  [RouteNames.Profile]: undefined;
+  [RouteNames.SettingsDetail]: undefined;
+};

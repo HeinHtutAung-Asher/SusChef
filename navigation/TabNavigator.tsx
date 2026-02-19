@@ -1,40 +1,24 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import {
-  Refrigerator,
-  Heart,
-  User,
-} from 'lucide-react-native';
+import { Refrigerator, Heart, User } from 'lucide-react-native';
 import PantryScreen from '../features/pantry/PantryScreen';
+import { SavedRecipesScreen } from '../features/home/SavedRecipesScreen';
 import { RecipeResultsScreen } from '../features/recommendations/RecipeResultsScreen';
 import { RecipeDetailScreen } from '../features/recommendations/RecipeDetailScreen';
 import { RouteNames } from './routeNames';
-import { TabParamList } from './types';
+import { TabParamList, ProfileStackParamList } from './types';
 import { colors } from '../core/theme/colors';
 import { typography } from '../core/theme/typography';
+import { ProfileScreen } from '../features/profile/ProfileScreen';
+import { SettingsDetailScreen } from '../features/profile/SettingsDetailScreen';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const PantryStack = createNativeStackNavigator();
+const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
 const styles = StyleSheet.create({
-  placeholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: colors.background,
-  },
-  placeholderText: {
-    fontSize: typography.size.body,
-    color: colors.text.primary,
-    fontWeight: '600' as const,
-  },
-  comingSoon: {
-    fontSize: typography.size.caption,
-    color: colors.text.disabled,
-  },
   tabBar: {
     backgroundColor: colors.surface,
     borderTopColor: colors.border,
@@ -75,26 +59,19 @@ function PantryStackNavigator() {
   );
 }
 
-// Placeholder Screens
-const SavedScreen = () => (
-  <View style={styles.placeholder}>
-    <Heart size={48} color={colors.text.secondary} />
-    <Text style={styles.placeholderText}>Saved Recipes</Text>
-    <Text style={styles.comingSoon}>Coming Soon</Text>
-  </View>
-);
-
-const ProfileScreen = () => (
-  <View style={styles.placeholder}>
-    <User size={48} color={colors.text.secondary} />
-    <Text style={styles.placeholderText}>My Profile</Text>
-    <Text style={styles.comingSoon}>Coming Soon</Text>
-  </View>
-);
+function ProfileStackNavigator() {
+  return (
+    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+      <ProfileStack.Screen name={RouteNames.Profile} component={ProfileScreen} />
+      <ProfileStack.Screen name={RouteNames.SettingsDetail} component={SettingsDetailScreen} />
+    </ProfileStack.Navigator>
+  );
+}
 
 export default function TabNavigator() {
   return (
     <Tab.Navigator
+      id="MainTabs"
       initialRouteName={RouteNames.Pantry}
       screenOptions={{
         headerShown: false,
@@ -125,7 +102,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name={RouteNames.Saved}
-        component={SavedScreen}
+        component={SavedRecipesScreen}
         options={{
           tabBarLabel: 'Saved',
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
@@ -135,7 +112,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name={RouteNames.Profile}
-        component={ProfileScreen}
+        component={ProfileStackNavigator}
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
