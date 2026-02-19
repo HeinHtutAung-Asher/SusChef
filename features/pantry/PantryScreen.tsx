@@ -18,13 +18,7 @@ import { LoadingScreen } from '../recommendations/LoadingScreen';
 import { colors } from '../../core/theme/colors';
 import { layout, typography } from '../../core/theme/typography';
 import { RouteNames } from '../../navigation/routeNames';
-
-interface Ingredient {
-  id: string;
-  name: string;
-  amount: number;
-  unit: string;
-}
+import { usePantryStore, Ingredient } from '../../store';
 
 interface Tool {
   id: string;
@@ -39,10 +33,8 @@ interface PantryScreenProps {
 export const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
   const { height } = useWindowDimensions();
   const [isLoading, setIsLoading] = useState(false);
-  const [ingredients, setIngredients] = useState<Ingredient[]>([
-    { id: '1', name: 'Rice', amount: 2, unit: 'cups' },
-    { id: '2', name: 'Eggs', amount: 6, unit: 'pcs' },
-  ]);
+  const { state, addIngredient, removeIngredient, updateIngredient } = usePantryStore();
+  const ingredients = state.ingredients;
 
   const [tools, setTools] = useState<Tool[]>([
     { id: 't1', name: 'Microwave', isChecked: true },
@@ -52,21 +44,15 @@ export const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
 
   // Sort tools so checked items float to top
   const sortedTools = useCallback(() => {
-    return [...tools].sort((a, b) => {
+    return [...tools].sort((a: Tool, b: Tool) => {
       if (a.isChecked === b.isChecked) return 0;
       return a.isChecked ? -1 : 1;
     });
   }, [tools]);
 
   const handleAddIngredient = useCallback((name: string) => {
-    const newIngredient: Ingredient = {
-      id: Date.now().toString(),
-      name: name.trim(),
-      amount: 1,
-      unit: 'pcs',
-    };
-    setIngredients((prev) => [...prev, newIngredient]);
-  }, []);
+    addIngredient(name);
+  }, [addIngredient]);
 
   const handleAddTool = useCallback((name: string) => {
     const newTool: Tool = {
@@ -90,11 +76,7 @@ export const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
     // Explicit check for amount value
     if (ingredient.amount > 0) {
       // Just set to 0
-      setIngredients((prev) =>
-        prev.map((ing) =>
-          ing.id === id ? { ...ing, amount: 0 } : ing
-        )
-      );
+      updateIngredient(id, { amount: 0 });
     } else {
       // Show confirmation alert
       Alert.alert(
@@ -109,22 +91,22 @@ export const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
           {
             text: 'Delete',
             onPress: () => {
-              setIngredients((prev) => prev.filter((ing) => ing.id !== id));
+              removeIngredient(id);
             },
             style: 'destructive',
           },
         ]
       );
     }
-  }, [ingredients]);
+  }, [ingredients, updateIngredient, removeIngredient]);
 
   const handleToggleTool = useCallback((id: string) => {
-    setTools((prev) => {
-      const updated = prev.map((tool) =>
+    setTools((prev: Tool[]) => {
+      const updated = prev.map((tool: Tool) =>
         tool.id === id ? { ...tool, isChecked: !tool.isChecked } : tool
       );
       // Re-sort immediately
-      return updated.sort((a, b) => {
+      return updated.sort((a: Tool, b: Tool) => {
         if (a.isChecked === b.isChecked) return 0;
         return a.isChecked ? -1 : 1;
       });
@@ -229,18 +211,10 @@ export const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
                       unit={item.unit}
                       onDelete={() => handleDeleteIngredient(item.id)}
                       onAmountChange={(newAmount) => {
-                        setIngredients((prev) =>
-                          prev.map((ing) =>
-                            ing.id === item.id ? { ...ing, amount: newAmount } : ing
-                          )
-                        );
+                        updateIngredient(item.id, { amount: newAmount });
                       }}
                       onUnitChange={(newUnit) => {
-                        setIngredients((prev) =>
-                          prev.map((ing) =>
-                            ing.id === item.id ? { ...ing, unit: newUnit } : ing
-                          )
-                        );
+                        updateIngredient(item.id, { unit: newUnit });
                       }}
                     />
                   )}

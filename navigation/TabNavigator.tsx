@@ -8,6 +8,7 @@ import {
   User,
 } from 'lucide-react-native';
 import PantryScreen from '../features/pantry/PantryScreen';
+import { SavedRecipesScreen } from '../features/home/SavedRecipesScreen';
 import { RecipeResultsScreen } from '../features/recommendations/RecipeResultsScreen';
 import { RecipeDetailScreen } from '../features/recommendations/RecipeDetailScreen';
 import { RouteNames } from './routeNames';
@@ -76,14 +77,6 @@ function PantryStackNavigator() {
 }
 
 // Placeholder Screens
-const SavedScreen = () => (
-  <View style={styles.placeholder}>
-    <Heart size={48} color={colors.text.secondary} />
-    <Text style={styles.placeholderText}>Saved Recipes</Text>
-    <Text style={styles.comingSoon}>Coming Soon</Text>
-  </View>
-);
-
 const ProfileScreen = () => (
   <View style={styles.placeholder}>
     <User size={48} color={colors.text.secondary} />
@@ -95,6 +88,7 @@ const ProfileScreen = () => (
 export default function TabNavigator() {
   return (
     <Tab.Navigator
+      id="MainTabs"
       initialRouteName={RouteNames.Pantry}
       screenOptions={{
         headerShown: false,
@@ -125,7 +119,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name={RouteNames.Saved}
-        component={SavedScreen}
+        component={SavedRecipesScreen}
         options={{
           tabBarLabel: 'Saved',
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (

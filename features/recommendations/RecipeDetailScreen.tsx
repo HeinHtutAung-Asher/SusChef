@@ -15,6 +15,7 @@ import { InstructionStep } from '../../components/InstructionStep';
 import { colors } from '../../core/theme/colors';
 import { layout, typography } from '../../core/theme/typography';
 import { MOCK_RECIPES } from '../../core/constants/mockRecipes';
+import { useRecipeStore } from '../../store/useRecipeStore';
 
 interface RecipeDetailScreenProps {
   navigation: any;
@@ -28,10 +29,12 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
   const recipeId = route.params?.recipeId;
   const recipe = MOCK_RECIPES.find((r) => r.id === recipeId) || MOCK_RECIPES[0];
 
+  const { isRecipeSaved, toggleSave } = useRecipeStore();
+  const isSaved = isRecipeSaved(recipe.id);
+
   const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions'>(
     'ingredients'
   );
-  const [isSaved, setIsSaved] = useState(false);
   const [checkedIngredients, setCheckedIngredients] = useState<Set<string>>(
     new Set()
   );
@@ -162,7 +165,7 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
             <Text style={styles.title}>{recipe.title}</Text>
             <Pressable
               style={styles.heartButton}
-              onPress={() => setIsSaved(!isSaved)}
+              onPress={() => toggleSave(recipe)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Heart

@@ -13,6 +13,8 @@ import { RecipeCard } from '../../components/RecipeCard';
 import { colors } from '../../core/theme/colors';
 import { layout, typography } from '../../core/theme/typography';
 import { MOCK_RECIPES } from '../../core/constants/mockRecipes';
+import { usePantryStore } from '../../store';
+import { useRecipeStore } from '../../store/useRecipeStore';
 
 interface RecipeResultsScreenProps {
   navigation: any;
@@ -21,6 +23,28 @@ interface RecipeResultsScreenProps {
 export const RecipeResultsScreen: React.FC<RecipeResultsScreenProps> = ({
   navigation,
 }) => {
+  const { state } = usePantryStore();
+  const ingredients = state.ingredients;
+
+  // Get the list of available ingredient names (case-insensitive)
+  const availableIngredientNames = ingredients.map((ing) =>
+    ing.name.toLowerCase().trim()
+  );
+
+  // Filter and sort recipes: show recipes with at least ONE matching ingredient at the top
+  const filteredRecipes = MOCK_RECIPES.map((recipe) => {
+    const matchingIngredients = recipe.ingredients.filter((recipeIng) =>
+      availableIngredientNames.some((availableIng) =>
+        recipeIng.toLowerCase().includes(availableIng) ||
+        availableIng.includes(recipeIng.toLowerCase())
+      )
+    );
+    return { recipe, matchCount: matchingIngredients.length };
+  })
+    .filter((item) => item.matchCount > 0)
+    .sort((a, b) => b.matchCount - a.matchCount)
+    .map((item) => item.recipe);
+
   const styles = StyleSheet.create({
     safeArea: {
       flex: 1,
@@ -86,8 +110,8 @@ export const RecipeResultsScreen: React.FC<RecipeResultsScreenProps> = ({
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {MOCK_RECIPES.length > 0 ? (
-          MOCK_RECIPES.map((recipe, index) => (
+        {filteredRecipes.length > 0 ? (
+          filteredRecipes.map((recipe, index) => (
             <RecipeCard
               key={recipe.id}
               recipe={recipe}
@@ -95,7 +119,11 @@ export const RecipeResultsScreen: React.FC<RecipeResultsScreenProps> = ({
             />
           ))
         ) : (
-          <Text style={styles.emptyText}>No recipes found</Text>
+          <Text style={styles.emptyText}>
+            {ingredients.length === 0
+              ? 'Add ingredients to your pantry to see recommendations'
+              : 'No recipes match your available ingredients'}
+          </Text>
         )}
       </ScrollView>
     </SafeAreaView>
